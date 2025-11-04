@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Restricted Login with FastAPI</title>
+</head>
+<body>
+  <h2>Company Portal Login</h2>
+  <button id="google-login">Login with Google</button>
+  <button id="logout" style="display:none;">Logout</button>
+  <p id="status"></p>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
+    import { 
+      getAuth, signInWithPopup, GoogleAuthProvider, signOut, onAuthStateChanged 
+    } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
+
+    // Firebase Stuffs, Needed for using Google Auth
+    const firebaseConfig = {
+        apiKey: "AIzaSyDFJkcOMWmgbs0b-bVTvHWSLIdrIc4AubQ",
+        authDomain: "wgroupcseetriagesystem.firebaseapp.com",
+        projectId: "wgroupcseetriagesystem",
+        storageBucket: "wgroupcseetriagesystem.firebasestorage.app",
+        messagingSenderId: "61043486188",
+        appId: "1:61043486188:web:265170e59a1a8742bda4c9"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    const loginBtn = document.getElementById('google-login');
+    const logoutBtn = document.getElementById('logout');
+    const statusText = document.getElementById('status');
+
+    // --- Login ---
+    loginBtn.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const user = result.user;
+
+        // Get Firebase ID token
+        const token = await user.getIdToken();
+
+        // Call FastAPI backend
+        const response = await fetch("http://127.0.0.1:8000/secure-data", {
+          method: "GET",
+          headers: {
+            "Authorization": "Bearer " + token
+          }
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          statusText.textContent = data.message;
+          loginBtn.style.display = "none";
+          logoutBtn.style.display = "inline";
+        } else {
+          statusText.textContent = data.detail || "Access denied";
+          await signOut(auth); // log out if backend rejects
+        }
+
+      } catch (error) {
+        console.error(error);
+        statusText.textContent = "Error: " + error.message;
+      }
+    });
+
+    // --- Logout ---
+    logoutBtn.addEventListener('click', async () => {
+      await signOut(auth);
+      statusText.textContent = "Logged out.";
+      loginBtn.style.display = "inline";
+      logoutBtn.style.display = "none";
+    });
+
+    // --- Handle refresh / auth state ---
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+          const token = await user.getIdToken();
+          const response = await fetch("http://127.0.0.1:8000/secure-data", {
+            method: "GET",
+            headers: { "Authorization": "Bearer " + token }
+          });
+
+          const data = await response.json();
+          if (response.ok) {
+            statusText.textContent = data.message;
+            loginBtn.style.display = "none";
+            logoutBtn.style.display = "inline";
+          } else {
+            statusText.textContent = data.detail || "Access denied";
+            await signOut(auth);
+          }
+        } catch (e) {
+          console.error(e);
+          statusText.textContent = "Error verifying login";
+          await signOut(auth);
+        }
+      } else {
+        loginBtn.style.display = "inline";
+        logoutBtn.style.display = "none";
+      }
+    });
+  </script>
+</body>
+</html>

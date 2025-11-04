@@ -3,7 +3,8 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 
 cred = credentials.Certificate("wgroupcseetriagesystem-firebase-adminsdk-fbsvc-0facf1a50e.json")
-firebase_admin.initialize_app(cred)
+if not firebase_admin._apps:
+    firebase_admin.initialize_app(cred)
 
 db = firebase_admin.firestore.client()
 
@@ -45,6 +46,3 @@ def add_faq(question: str, answer: str, faculty: str, tags: list, index = None):
 
     db.collection('faq').add(data)
     print("FAQ added with auto ID.")
-
-if __name__ == "__main__":
-    pass
