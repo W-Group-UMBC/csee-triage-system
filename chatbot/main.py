@@ -49,7 +49,7 @@ async def chat_endpoint(request: ChatRequest):
 @app.post("/admin/force-sync")
 async def force_sync():
     """Endpoint to manually trigger sync (useful for debugging)"""
-    sync_knowledge_base()
+    await sync_knowledge_base()
     return {"status": "Sync triggered successfully"}
 
 @app.get("/health")
