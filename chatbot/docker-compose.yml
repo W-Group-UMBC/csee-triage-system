@@ -1,0 +1,18 @@
+services:
+  rag-agent:
+    build: .
+    container_name: agno-rag-agent
+    ports:
+      - "8001:8001"
+    volumes:
+      # Maps local 'data' folder to container's '/app/data'
+      - ./data:/app/data
+      # Mount the firebase key securely (read-only)
+      - ./service_key.json:/app/service_key.json:ro
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIREBASE_CRED_PATH=/app/service_key.json
+      - DATA_DIR=/app/data
+      - SYNC_INTERVAL_HOURS=12
+      - RUN_INIT_SYNC=1  # <--- Triggers sync on container start
+    restart: unless-stopped

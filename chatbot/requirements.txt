@@ -1,0 +1,13 @@
+fastapi
+uvicorn
+agno
+openai
+lancedb
+pylance
+tantivy
+firebase-admin
+pydantic
+apscheduler
+sqlalchemy
+python-dotenv
+pandas
