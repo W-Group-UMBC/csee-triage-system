@@ -11,10 +11,9 @@ from agno.db.sqlite import SqliteDb
 
 from chatbot_config import ChatbotConfig
 
-# --- Configuration ---
 os.makedirs(ChatbotConfig.DATA_DIR, exist_ok=True)
 
-# 1. Initialize Firebase
+# firebase init
 if not firebase_admin._apps:
     cred_path = os.getenv("FIREBASE_CRED_PATH", "service_key.json")
     if os.path.exists(cred_path):
@@ -25,8 +24,8 @@ if not firebase_admin._apps:
 
 db = firestore.client()
 
-# 2. Knowledge Base Setup
-# Create the vector database instance
+# Knowledge Base init
+# create the vector db instance
 vector_db = LanceDb(
     table_name="firestore_knowledge",
     uri=os.path.join(ChatbotConfig.DATA_DIR, "lancedb"),
@@ -34,13 +33,13 @@ vector_db = LanceDb(
     embedder=OpenAIEmbedder(id="text-embedding-3-small"),
 )
 
-# Create the Knowledge Base
+# create knowledge db
 knowledge_base = Knowledge(
     vector_db=vector_db
 )
 
 
-# 3. Agent Factory
+# create agent when called
 def get_agent(user_id: str = "default_user"):
     # UPDATED: Use SqliteDb for session storage
     db_path = os.path.join(ChatbotConfig.DATA_DIR, "agent_history.db")
@@ -57,7 +56,7 @@ def get_agent(user_id: str = "default_user"):
         search_knowledge=True,
     )
 
-# 4. Sync Logic
+# sync firbase db and vector db
 async def sync_knowledge_base():
     print("⏳ Starting Firestore Sync...")
     try:

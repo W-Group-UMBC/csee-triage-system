@@ -17,20 +17,20 @@ scheduler = AsyncIOScheduler()
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: Sync immediately and start scheduler
+    # startup: Sync immediately and start scheduler
     print("🚀 Application starting...")
     
-    # Run an initial sync (optional, can be disabled if startup time is critical)
+    # init sync if enabled (always 1 for docker startup)
     if ChatbotConfig.RUN_INIT_SYNC:
         await sync_knowledge_base()
     
-    # Schedule the recurring task
+    # schedule the recurring sync task
     scheduler.add_job(sync_knowledge_base, 'interval', hours=ChatbotConfig.SYNC_INTERVAL_HOURS)
     scheduler.start()
     
-    yield # Application runs here
+    yield 
     
-    # Shutdown
+    # shutdown
     print("🛑 Application shutting down...")
     scheduler.shutdown()
 
