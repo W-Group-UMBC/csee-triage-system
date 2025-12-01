@@ -2,6 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Faculty from "./pages/Faculty";
 import Login from "./pages/Login";
+import Chatbot from "./components/Chatbot";
 
 export default function App() {
   return (
@@ -19,6 +20,7 @@ export default function App() {
         />
 
       </Routes>
+      <Chatbot/>
     </Router>
   );
 }
