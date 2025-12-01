@@ -21,6 +21,7 @@ body {
     border-bottom: 1px solid #3c3c3c;
 }
 
+
 .logo {
     color: white;
     font-size: 24px;
@@ -31,6 +32,9 @@ body {
     width: 260px;
     height: 60px;
 }
+
+
+
 
 /* ====== BREADCRUMB ====== */
 .breadcrumb {
@@ -211,6 +215,18 @@ body {
 }
 
 .faq-item.expanded .faq-answer {
+    max-height: 500px;
+    padding: 0 24px 24px 24px;
+}
+
+.faq-tags {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+    padding: 0 24px;
+}
+
+.faq-item.expanded .faq-tags {
     max-height: 500px;
     padding: 0 24px 24px 24px;
 }
