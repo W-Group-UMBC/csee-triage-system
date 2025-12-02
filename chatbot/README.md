@@ -15,7 +15,7 @@ To run the service, complete the following:
 OPENAI_API_KEY=sk-proj-your-actual-key-here
 SYNC_INTERVAL_HOURS=6
 ```
-4. For the first time and after any changes to the code, build the service using docker:
+4. For the first time, build the service using docker:
 ```
 docker-compose up --build
 ```
@@ -23,6 +23,12 @@ docker-compose up --build
 To run after creating an image, you only need to do the command with build:
 ```
 docker-compose up
+```
+
+After changing code, create a new image:
+```
+docker-compose down
+docker-compose up --build
 ```
 
 The service should be running now. Checek the health using the curl request:
