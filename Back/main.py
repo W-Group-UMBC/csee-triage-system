@@ -34,7 +34,7 @@ app.add_middleware(
 allowed_users = {}
 # Get allowed users from Firestore
 def get_allowed_users():
-    users_ref = db.collection('faculty')
+    users_ref = db.collection('admins')
     docs = users_ref.stream()
     return set(doc.id for doc in docs)
 
