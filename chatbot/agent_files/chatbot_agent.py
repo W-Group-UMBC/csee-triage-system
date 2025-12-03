@@ -9,7 +9,7 @@ from agno.vectordb.lancedb import LanceDb, SearchType
 from agno.knowledge.embedder.openai import OpenAIEmbedder
 from agno.db.sqlite import SqliteDb
 
-from chatbot_config import ChatbotConfig
+from agent_files.chatbot_config import ChatbotConfig
 
 os.makedirs(ChatbotConfig.DATA_DIR, exist_ok=True)
 
@@ -92,11 +92,13 @@ async def sync_knowledge_base():
     print("⏳ Starting Firestore Sync...")
     print("Note this will cause the chatbot to be unable to answer questions until complete!")
 
+    new_faqs = 0
+    new_faculty_count = 0
+
     drop_table()
 
     try:
         print("Trying to sync FAQs")
-        new_faqs = 0
         faqs = db.collection(f"{ChatbotConfig.FAQ_COLLECTION_N}").stream()
         
         if faqs:
@@ -120,7 +122,7 @@ async def sync_knowledge_base():
                     )
                     new_faqs = new_faqs + 1
                 
-                print(f"Added question: {question}")
+                    print(f"Added question: {question}")
             
         else:
             print("⚠️ FAQ Sync Complete: No documents found.")
@@ -132,7 +134,6 @@ async def sync_knowledge_base():
 
     try:
         print("Trying to sync Faculty")
-        new_faculty_count = 0
         faculty = db.collection(f"{ChatbotConfig.FACULTY_COLLECTION_N}").stream()
         
         if faculty:

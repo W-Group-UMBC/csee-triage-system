@@ -1,6 +1,5 @@
 import os
 
-
 class ChatbotConfig:
     """Configuration class for constants for the chatbot service"""
 
