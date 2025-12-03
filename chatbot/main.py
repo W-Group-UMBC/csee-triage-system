@@ -7,7 +7,7 @@ from contextlib import asynccontextmanager
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
 # Import from our agent module
-from agent import get_agent, sync_knowledge_base
+from chatbot_agent import get_agent, sync_knowledge_base
 from chatbot_config import ChatbotConfig
 from chatbot_schemas import ChatRequest, ChatResponse
 
