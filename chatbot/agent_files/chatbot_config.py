@@ -11,6 +11,7 @@ class ChatbotConfig:
 
     SYNC_INTERVAL_HOURS = int(os.getenv("SYNC_INTERVAL_HOURS", 1))
     
-    COLLECTION_NAME = "faq"
+    FAQ_COLLECTION_N = "faq"
+    FACULTY_COLLECTION_N = "faculty"
 
     OPENAI_MODEL = "gpt-4o-mini"
