@@ -14,7 +14,7 @@ import uvicorn
 from database import *
 
 # Getting Secrets
-cred = credentials.Certificate("wgroupcseetriagesystem-firebase-adminsdk-fbsvc-162d973a3d.json")
+cred = credentials.Certificate("service_key.json")
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 

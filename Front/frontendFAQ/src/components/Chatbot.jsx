@@ -1,5 +1,7 @@
 import { useState, useRef, useEffect } from "react";
-import "../styles/chatbot.css"; // We will create this in Step 3
+import "../styles/chatbot.css"; 
+import ReactMarkdown from "react-markdown";
+
 
 export default function Chatbot() {
   const [isOpen, setIsOpen] = useState(false);
@@ -83,7 +85,9 @@ export default function Chatbot() {
         <div className="chatbot-messages">
           {messages.map((msg, index) => (
             <div key={index} className={`message ${msg.sender}`}>
-              <div className="message-bubble">{msg.text}</div>
+              <div className="message-bubble">
+                <ReactMarkdown>{msg.text}</ReactMarkdown>
+                </div>
             </div>
           ))}
           {loading && (

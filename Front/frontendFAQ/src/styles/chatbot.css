@@ -107,6 +107,18 @@
     border-bottom-left-radius: 2px;
 }
 
+.message-bubble ul,
+.message-bubble ol {
+    padding-left: 20px; /* Creates space for the bullets */
+    margin-top: 5px;    /* Adds a little breathing room above the list */
+    margin-bottom: 5px; /* Adds a little breathing room below the list */
+}
+
+/* Ensure nested items don't look weird */
+.message-bubble li {
+    margin-bottom: 4px; /* Spacing between list items */
+}
+
 /* Input Area */
 .chatbot-input-area {
     display: flex;
