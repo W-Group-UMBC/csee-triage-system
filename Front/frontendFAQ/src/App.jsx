@@ -2,8 +2,7 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Home from "./pages/Home";
 import Faculty from "./pages/Faculty";
 import Login from "./pages/Login";
-import NotAuthorized from "./pages/NotAuthorized";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Chatbot from "./components/Chatbot";
 
 export default function App() {
   return (
@@ -17,17 +16,11 @@ export default function App() {
         {/* Protected page */}
         <Route
           path="/faculty"
-          element={
-            <ProtectedRoute>
-              <Faculty />
-            </ProtectedRoute>
-          }
+          element={<Faculty />}
         />
 
-        {/* When user lacks access */}
-        <Route path="/not-authorized" element={<NotAuthorized />} />
-
       </Routes>
+      <Chatbot/>
     </Router>
   );
 }

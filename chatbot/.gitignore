@@ -1,0 +1,13 @@
+# Security
+service_key.json
+.env
+
+# Data & Cache
+data/
+__pycache__/
+*.pyc
+
+# Local environments
+.venv/
+venv/
+.DS_Store

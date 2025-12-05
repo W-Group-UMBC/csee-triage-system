@@ -2,7 +2,7 @@ import firebase_admin
 from firebase_admin import credentials
 from firebase_admin import firestore
 
-cred = credentials.Certificate("wgroupcseetriagesystem-firebase-adminsdk-fbsvc-0facf1a50e.json")
+cred = credentials.Certificate("service_key.json")
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 

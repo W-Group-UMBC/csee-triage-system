@@ -1,24 +1,38 @@
-// components/FaqItem.jsx
-import { deleteDoc, doc } from "firebase/firestore";
-import { db } from "../firebase/firebase.js";
+import { useState } from "react";
 
-export default function FaqItem({ faq, onDelete }) {
-  const handleDelete = async () => {
-    if (!confirm("Delete this FAQ?")) return;
-
-    await deleteDoc(doc(db, "faq", faq.id));
-    onDelete(faq.id);
-  };
+export default function FaqItem({ faq, adminMode, onDelete }) {
+  const [open, setOpen] = useState(false);
 
   return (
     <div className="faq-item">
-      <div className="item-actions">
-        <button title="Edit" className="action-btn">✎</button>
-        <button title="Delete" className="action-btn" onClick={handleDelete}>🗑</button>
+      <div className="faq-question" onClick={() => setOpen(!open)}>
+        <h4>{faq.question}</h4>
+
+        {adminMode && (
+          <button
+            className="delete-btn"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            Delete
+          </button>
+        )}
       </div>
 
-      <div className="question">{faq.question}</div>
-      <div className="answer">{faq.answer}</div>
+      {open && (
+        <div className="faq-answer">
+          <p>{faq.answer}</p>
+          {faq.tags?.length > 0 && (
+            <div className="tags">
+              {faq.tags.map((t) => (
+                <span key={t} className="tag">{t}</span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }

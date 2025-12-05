@@ -2,16 +2,19 @@ from pydantic import BaseModel
 from typing import List
 
 from fastapi import FastAPI, Request, HTTPException, Depends
+from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
 
 import firebase_admin
 from firebase_admin import credentials, auth, firestore
 
+import uvicorn
+
 # Functions from database.py
 from database import *
 
 # Getting Secrets
-cred = credentials.Certificate("wgroupcseetriagesystem-firebase-adminsdk-fbsvc-0facf1a50e.json")
+cred = credentials.Certificate("service_key.json")
 if not firebase_admin._apps:
     firebase_admin.initialize_app(cred)
 
@@ -62,7 +65,15 @@ async def verify_token(request: Request):
 @app.get("/secure-data")
 async def secure_data(user=Depends(verify_token)):
     email = user.get("email")
-    return {"message": f"Welcome, {email}. You are authorized!"}
+    # Return JSON instead of redirect
+    return {"authorized": True, "email": email}
+
+
+@app.get("/check-access")
+async def check_access(user=Depends(verify_token)):
+    # user is decoded token from Firebase
+    return {"authorized": True, "email": user["email"]}
+
 
 # --- Request models ---
 class FAQCreate(BaseModel):
@@ -78,17 +89,20 @@ async def api_add_faq(faq: FAQCreate, user=Depends(verify_token)):
     add_faq(faq.question, faq.answer, faq.faculty, faq.tags, faq.index)
     return {"message": "FAQ added successfully"}
 
-@app.get("/faq/{doc_id}")
-async def api_get_faq(doc_id: str, user=Depends(verify_token)):
+@app.get("/public/faq/{doc_id}")
+async def api_get_faq(doc_id: str):
     faq = get_faq(doc_id)
     if not faq:
         raise HTTPException(status_code=404, detail="FAQ not found")
     return faq
 
-@app.get("/faqs")
-async def api_get_all_faqs(user=Depends(verify_token)):
+@app.get("/public/faqs")
+async def api_get_all_faqs():
     return get_all_faqs()
 
-@app.get("/faqs/tag/{tag}")
-async def api_get_faqs_by_tag(tag: str, user=Depends(verify_token)):
+@app.get("/public/faqs/tag/{tag}")
+async def api_get_faqs_by_tag(tag: str):
     return get_faqs_by_tag(tag)
+
+if __name__ == "__main__":
+    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

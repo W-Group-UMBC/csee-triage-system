@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
+import { Link } from "react-router-dom";
 import SearchBar from "../components/SearchBar";
 import "../styles/main.css";
 
@@ -8,9 +9,11 @@ export default function Home() {
   const [filteredFaqs, setFilteredFaqs] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Load FAQs on mount
   useEffect(() => {
-    async function load() {
+    async function loadFaqs() {
       try {
+        setLoading(true);
         const data = await api.getAllFaqs();
         setFaqs(data);
         setFilteredFaqs(data);
@@ -20,54 +23,73 @@ export default function Home() {
         setLoading(false);
       }
     }
-    load();
+    loadFaqs();
   }, []);
 
-  // search handler
+  // Search handler
   const handleSearch = (term) => {
-    if (!term || term.trim() === "") {
-      setFilteredFaqs(faqs);
-      return;
-    }
+  if (!term || term.trim() === "") {
+    setFilteredFaqs(faqs); // reset to all FAQs if search is empty
+    return;
+  }
 
-    const search = term.toLowerCase();
-    const results = faqs.filter(
-      (f) =>
-        f.question.toLowerCase().includes(search) ||
-        f.answer.toLowerCase().includes(search) ||
-        (f.tags && f.tags.join(" ").toLowerCase().includes(search))
-    );
+  const search = term.toLowerCase();
+  const results = faqs.filter(
+    (f) =>
+      f.question.toLowerCase().includes(search) ||
+      f.answer.toLowerCase().includes(search) ||
+      (f.tags && f.tags.join(" ").toLowerCase().includes(search))
+  );
 
-    setFilteredFaqs(results);
-  };
+  setFilteredFaqs(results);
+};
 
-  // toggle FAQ expand
-  const toggleExpand = (id) => {
+
+  // Toggle FAQ expand/collapse
+  const toggleExpand = (index) => {
     setFilteredFaqs((prev) =>
-      prev.map((faq) =>
-        faq.id === id ? { ...faq, expanded: !faq.expanded } : faq
+      prev.map((faq, i) =>
+        i === index ? { ...faq, expanded: !faq.expanded } : faq
       )
     );
   };
 
+
   return (
     <div>
       {/* ===== Header ===== */}
-      <>
-        <div class="header">
-          <div class="logo">
-              <img src="/images/UMBC-primary-logo-CMYK-on-black.png" alt="UMBC Logo" />
-          </div>
+      <div className="header" >
+        <div className="logo">
+          <img src="/images/UMBC-primary-logo-CMYK-on-black.png" alt="UMBC Logo" />
         </div>
 
-      <div class="breadcrumb">
-          <p>College of Engineering and Information Technology</p>
-          <br />
-          <h1>Department of Computer Science and Electrical Engineering</h1>
+        <div className="login-nav">
+          <Link to="/login" style={{ textDecoration: "none" }}>
+            <button
+              className="btn"
+              style={{
+                background: "#2C2C2C",
+                color: "white",
+                padding: "12px 26px",
+                borderRadius: 8,
+                fontSize: 18,
+                cursor: "pointer",
+                border: "none",
+              }}
+            >
+              Login
+            </button>
+          </Link>
+        </div>
       </div>
 
-    <div class="blackbar"></div>
-    </>
+      <div className="breadcrumb">
+        <p>College of Engineering and Information Technology</p>
+        <br />
+        <h1>Department of Computer Science and Electrical Engineering</h1>
+      </div>
+
+      <div className="blackbar"></div>
 
       {/* ===== Main Content ===== */}
       <div className="main-container">
@@ -78,9 +100,8 @@ export default function Home() {
           </p>
 
           {/* ===== Search Section ===== */}
-          
           <div className="main-search-section">
-            <SearchBar onSearch={handleSearch} />
+            <SearchBar onChange={handleSearch} />
           </div>
 
           <p className="section-header" style={{ fontSize: 20 }}>
@@ -97,19 +118,21 @@ export default function Home() {
               ) : filteredFaqs.length === 0 ? (
                 <p>No FAQs found.</p>
               ) : (
-                filteredFaqs.map((faq) => (
+                filteredFaqs.map((faq, index) => (
                   <div
-                    key={faq.id}
+                    key={index} // use index if faq.id doesn’t exist yet
                     className={`faq-item ${faq.expanded ? "expanded" : ""}`}
                   >
                     <div
                       className="faq-question"
-                      onClick={() => toggleExpand(faq.id)}
+                      onClick={() => toggleExpand(index)}
                     >
                       <span className="question-text">{faq.question}</span>
                       <i className="fa-solid fa-chevron-down dropdown-icon"></i>
                     </div>
-
+                    <div className="faq-tags"> 
+                      <p>Tags: {faq.tags.join(", ")}</p>
+                    </div>
                     <div className="faq-answer">
                       <p>{faq.answer}</p>
                     </div>
