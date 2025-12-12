@@ -27,7 +27,7 @@ export default function Faculty() {
         // Fetch FAQ data
         const data = await api.getAllFaqs();
 
-        // Add expanded property
+        // Add expanded property (kept for consistency with data structure)
         const enriched = data.map((faq) => ({ ...faq, expanded: false }));
 
         setFaqs(enriched);
@@ -52,15 +52,6 @@ export default function Faculty() {
   if (loading || authorized === null) {
     return <p className="loading">Loading...</p>;
   }
-
-  // Toggle dropdown
-  const toggleExpand = (index) => {
-    setFaqs((prevFaqs) =>
-      prevFaqs.map((faq, i) =>
-        i === index ? { ...faq, expanded: !faq.expanded } : faq
-      )
-    );
-  };
 
   // Filtered FAQs
   const filteredFaqs = faqs.filter((f) => {
@@ -145,29 +136,34 @@ export default function Faculty() {
                 filteredFaqs.map((faq) => (
                   <div
                     key={faq.id}
-                    className={`faq-item ${faq.expanded ? "expanded" : ""}`}
+                    className="faq-item"
+                    style={{ cursor: "default" }}
                   >
                     <div className="item-actions">
                       <button
                         className="action-btn delete-btn"
                         onClick={() => handleDeleteFaq(faq.id)}
                       >
-                        🗑
+                        <i className="fa-solid fa-trash" style={{ fontSize: "20px" }}></i>
                       </button>
                     </div>
 
-                    <div className="faq-question" onClick={() => toggleExpand(faqs.indexOf(faq))}>
-                      <span className="question-text">{faq.question}</span>
-                      <i className="fa-solid fa-chevron-down dropdown-icon"></i>
+                    {/* Question Header (No longer clickable) */}
+                    <div className="faq-question" style={{ cursor: "text" }}>
+                      <span className="question-text" style={{ fontWeight: "bold" }}>
+                        {faq.question}
+                      </span>
                     </div>
 
-                    {faq.tags && (
-                      <div className="faq-tags">
+                    {/* Tags (Always visible) */}
+                    {faq.tags && faq.tags.length > 0 && (
+                      <div className="faq-tags" style={{ maxHeight: "none", padding: "0 24px 10px 24px" }}>
                         <p>Tags: {faq.tags.join(", ")}</p>
                       </div>
                     )}
 
-                    <div className="faq-answer">
+                    {/* Answer (Always visible) */}
+                    <div className="faq-answer" style={{ maxHeight: "none", padding: "0 24px 24px 24px" }}>
                       <p>{faq.answer}</p>
                     </div>
                   </div>

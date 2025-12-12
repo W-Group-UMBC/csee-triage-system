@@ -28,21 +28,21 @@ export default function Home() {
 
   // Search handler
   const handleSearch = (term) => {
-  if (!term || term.trim() === "") {
-    setFilteredFaqs(faqs); // reset to all FAQs if search is empty
-    return;
-  }
+    if (!term || term.trim() === "") {
+      setFilteredFaqs(faqs); // reset to all FAQs if search is empty
+      return;
+    }
 
-  const search = term.toLowerCase();
-  const results = faqs.filter(
-    (f) =>
-      f.question.toLowerCase().includes(search) ||
-      f.answer.toLowerCase().includes(search) ||
-      (f.tags && f.tags.join(" ").toLowerCase().includes(search))
-  );
+    const search = term.toLowerCase();
+    const results = faqs.filter(
+      (f) =>
+        f.question.toLowerCase().includes(search) ||
+        f.answer.toLowerCase().includes(search) ||
+        (f.tags && f.tags.join(" ").toLowerCase().includes(search))
+    );
 
-  setFilteredFaqs(results);
-};
+    setFilteredFaqs(results);
+  };
 
 
   // Toggle FAQ expand/collapse
@@ -127,12 +127,19 @@ export default function Home() {
                       className="faq-question"
                       onClick={() => toggleExpand(index)}
                     >
-                      <span className="question-text">{faq.question}</span>
+                      <span className="question-text" style={{ fontWeight: "bold" }}>
+                        {faq.question}
+                      </span>
                       <i className="fa-solid fa-chevron-down dropdown-icon"></i>
                     </div>
-                    <div className="faq-tags"> 
-                      <p>Tags: {faq.tags.join(", ")}</p>
-                    </div>
+                    
+                    {/* Tags moved here - outside the dropdown, always visible */}
+                    {faq.tags && faq.tags.length > 0 && (
+                      <div style={{ padding: "0 24px 10px 24px", color: "#666", fontSize: "0.95em" }}> 
+                        Tags: {faq.tags.join(", ")}
+                      </div>
+                    )}
+
                     <div className="faq-answer">
                       <p>{faq.answer}</p>
                     </div>

@@ -9,10 +9,12 @@ import firebase_admin
 from firebase_admin import credentials, auth, firestore
 
 import uvicorn
+import logging
 
 # Functions from database.py
 from database import *
 
+logger = logging.getLogger(__name__)
 # Getting Secrets
 cred = credentials.Certificate("service_key.json")
 if not firebase_admin._apps:
@@ -56,14 +58,21 @@ async def verify_token(request: Request):
     id_token = auth_header.split(" ")[1]
 
     try:
-        decoded_token = auth.verify_id_token(id_token)
+        # FIX 1: Add clock_skew_seconds to handle time differences
+        decoded_token = auth.verify_id_token(id_token, clock_skew_seconds=10)
         email = decoded_token.get("email")
 
+        # Get fresh list of users
         allowed_users = get_allowed_users()
         
-        # Check if email is in the allowed list
+        # FIX 2: Debugging - Print what the server sees
+        logger.debug(f"DEBUG: Attempting login for: {email}")
+        logger.debug(f"DEBUG: Allowed list: {allowed_users}")
+
         if email not in allowed_users:
+            logger.debug(f"DEBUG: Access denied for {email}")
             raise HTTPException(status_code=403, detail="Access denied: not an approved user.")
+            
         return decoded_token
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
