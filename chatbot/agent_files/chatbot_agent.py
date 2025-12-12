@@ -114,7 +114,7 @@ async def sync_knowledge_base():
 
                     specific_metadata = {
                         "firestore_id": q.id,                   # Link back to firestore db
-                        "type": "faq",                   # Static tag for this collection
+                        "type": "faq-database",                   # Static tag for this collection
                         "department": data.get("department", "N/A"), # Dynamic category
                         "year": datetime.now().year
                     }
@@ -150,7 +150,7 @@ async def sync_knowledge_base():
 
                     specific_metadata = {
                         "firestore_id": member.id,                   
-                        "type": "faculty",                  
+                        "type": "faculty-database",                  
                         "department": data.get("department", "N/A"),
                         "year": datetime.now().year
                     }
@@ -171,6 +171,44 @@ async def sync_knowledge_base():
             
     except Exception as e:
         print(f"❌ Error during sync: {e}")
+
+    try:
+        print("Trying to sync web pages")
+        pages = ChatbotConfig.UMBC_URLS_KNOWLEDGE
+        
+        
+        for page in pages:
+            p_name = data.get("name", "")
+            p_url = data.get("url", "")
+            p_subtype = data.get("subtype", "")
+
+            
+            if p_name and p_url:
+
+                specific_metadata = {                 
+                    "type": "csee-website",
+                    "subtype": p_subtype,                  
+                    "year": datetime.now().year
+                }
+
+                await knowledge_base.add_content_async(
+                    name=f"Faculty Member: {m_email} (name: {m_name})",
+                    text_content=f"{data}",
+                    metadata=specific_metadata,
+                )
+                new_faculty_count = new_faculty_count + 1
+            
+                print(f"Added faculty member: {m_email} (name: {m_name})")
+                
+        else:
+            print("⚠️ Faculty Sync Complete: No documents found.")
+
+        print(f"Faculty Sync Complete: Processed {new_faculty_count} documents.")
+            
+    except Exception as e:
+        print(f"❌ Error during sync: {e}")
+
+
 
     end_time = time.time()
     time_taken = end_time - start_time

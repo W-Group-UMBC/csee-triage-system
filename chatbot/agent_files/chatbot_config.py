@@ -15,3 +15,12 @@ class ChatbotConfig:
     FACULTY_COLLECTION_N = "faculty"
 
     OPENAI_MODEL = "gpt-4o-mini"
+
+    # static urls, change in future?
+    UMBC_URLS_KNOWLEDGE = [
+        {"name": "CSEE Leadership", "subtype": "csee staff", "url": "https://www.csee.umbc.edu/leadership/"},
+        {"name": "Tenure-track Faculty", "type": "", "csee staff": "https://www.csee.umbc.edu/tenure-track-faculty/"},
+        {"name": "placeholder", "type": "", "url": "placeholder"},
+        {"name": "placeholder", "type": "", "url": "placeholder"},
+        {"name": "placeholder", "type": "", "url": "placeholder"}
+    ]
