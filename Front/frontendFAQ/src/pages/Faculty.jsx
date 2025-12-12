@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
 import { auth } from "../firebase/firebase";
+import { Link } from "react-router-dom";
 import AddFaqForm from "../components/AddFaqForm";
+import AdminFaqItem from "../components/AdminFaqItem";
 import SearchBar from "../components/SearchBar";
 import "../styles/faculty.css";
 
@@ -27,7 +29,7 @@ export default function Faculty() {
         // Fetch FAQ data
         const data = await api.getAllFaqs();
 
-        // Add expanded property
+        // Add expanded property (kept for consistency with data structure)
         const enriched = data.map((faq) => ({ ...faq, expanded: false }));
 
         setFaqs(enriched);
@@ -52,15 +54,6 @@ export default function Faculty() {
   if (loading || authorized === null) {
     return <p className="loading">Loading...</p>;
   }
-
-  // Toggle dropdown
-  const toggleExpand = (index) => {
-    setFaqs((prevFaqs) =>
-      prevFaqs.map((faq, i) =>
-        i === index ? { ...faq, expanded: !faq.expanded } : faq
-      )
-    );
-  };
 
   // Filtered FAQs
   const filteredFaqs = faqs.filter((f) => {
@@ -99,6 +92,20 @@ export default function Faculty() {
     }
   };
 
+  const handleUpdateFaq = async (faqId, updatedData) => {
+    try {
+      await api.updateFaq(faqId, updatedData);
+
+      // Update local state instantly so we don't need to refresh
+      setFaqs((prev) => 
+        prev.map((f) => (f.id === faqId ? { ...f, ...updatedData } : f))
+      );
+    } catch (err) {
+      console.error("Error updating FAQ:", err);
+      alert("Failed to update FAQ.");
+    }
+  };
+
   return (
     <div>
       {/* Header */}
@@ -110,7 +117,7 @@ export default function Faculty() {
 
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <a href="#">COIT</a> / <a href="#">CSEE</a> / <a href="#">CSEE FAQ</a> / Admin Tools
+        <a href="#">COIT</a> / <a href="#">CSEE</a> / <Link to="/">CSEE FAQ</Link> / Admin Tools
       </div>
 
       {/* Main Layout */}
@@ -143,34 +150,12 @@ export default function Faculty() {
                 <p>No FAQs found.</p>
               ) : (
                 filteredFaqs.map((faq) => (
-                  <div
-                    key={faq.id}
-                    className={`faq-item ${faq.expanded ? "expanded" : ""}`}
-                  >
-                    <div className="item-actions">
-                      <button
-                        className="action-btn delete-btn"
-                        onClick={() => handleDeleteFaq(faq.id)}
-                      >
-                        🗑
-                      </button>
-                    </div>
-
-                    <div className="faq-question" onClick={() => toggleExpand(faqs.indexOf(faq))}>
-                      <span className="question-text">{faq.question}</span>
-                      <i className="fa-solid fa-chevron-down dropdown-icon"></i>
-                    </div>
-
-                    {faq.tags && (
-                      <div className="faq-tags">
-                        <p>Tags: {faq.tags.join(", ")}</p>
-                      </div>
-                    )}
-
-                    <div className="faq-answer">
-                      <p>{faq.answer}</p>
-                    </div>
-                  </div>
+                  <AdminFaqItem 
+                    key={faq.id} 
+                    faq={faq} 
+                    onDelete={handleDeleteFaq}
+                    onUpdate={handleUpdateFaq}
+                  />
                 ))
               )}
             </div>

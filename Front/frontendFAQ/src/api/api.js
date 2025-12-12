@@ -52,6 +52,29 @@ export const api = {
     return response.json();
   },
 
+  updateFaq: async (faqId, faqData) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not logged in");
+    
+    // Fixed: Was previously 'constSB_token' by mistake
+    const token = await user.getIdToken(); 
+
+    const response = await fetch(`${API_URL}/faq/${faqId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(faqData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to update FAQ");
+    }
+    return response.json();
+  },
+
   deleteFaq: async (faqId) => {
     const user = auth.currentUser;
     if (!user) throw new Error("Not logged in");

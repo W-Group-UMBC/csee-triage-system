@@ -15,8 +15,10 @@ export default function Home() {
       try {
         setLoading(true);
         const data = await api.getAllFaqs();
-        setFaqs(data);
-        setFilteredFaqs(data);
+        // Initialize with expanded: false
+        const initializedData = data.map(f => ({ ...f, expanded: false }));
+        setFaqs(initializedData);
+        setFilteredFaqs(initializedData);
       } catch (err) {
         console.error("Error loading FAQs:", err);
       } finally {
@@ -28,22 +30,21 @@ export default function Home() {
 
   // Search handler
   const handleSearch = (term) => {
-  if (!term || term.trim() === "") {
-    setFilteredFaqs(faqs); // reset to all FAQs if search is empty
-    return;
-  }
+    if (!term || term.trim() === "") {
+      setFilteredFaqs(faqs); // reset to all FAQs if search is empty
+      return;
+    }
 
-  const search = term.toLowerCase();
-  const results = faqs.filter(
-    (f) =>
-      f.question.toLowerCase().includes(search) ||
-      f.answer.toLowerCase().includes(search) ||
-      (f.tags && f.tags.join(" ").toLowerCase().includes(search))
-  );
+    const search = term.toLowerCase();
+    const results = faqs.filter(
+      (f) =>
+        f.question.toLowerCase().includes(search) ||
+        f.answer.toLowerCase().includes(search) ||
+        (f.tags && f.tags.join(" ").toLowerCase().includes(search))
+    );
 
-  setFilteredFaqs(results);
-};
-
+    setFilteredFaqs(results);
+  };
 
   // Toggle FAQ expand/collapse
   const toggleExpand = (index) => {
@@ -54,11 +55,22 @@ export default function Home() {
     );
   };
 
+  // --- Chip Styling (Consistent with Admin Dashboard) ---
+  const chipStyle = {
+    backgroundColor: "#e0e0e0",
+    padding: "4px 10px",
+    borderRadius: "16px",
+    fontSize: "13px",
+    color: "#333",
+    display: "inline-flex",
+    alignItems: "center",
+    fontWeight: "500"
+  };
 
   return (
     <div>
       {/* ===== Header ===== */}
-      <div className="header" >
+      <div className="header" style={{ justifyContent: "space-between" }}>
         <div className="logo">
           <img src="/images/UMBC-primary-logo-CMYK-on-black.png" alt="UMBC Logo" />
         </div>
@@ -120,21 +132,36 @@ export default function Home() {
               ) : (
                 filteredFaqs.map((faq, index) => (
                   <div
-                    key={index} // use index if faq.id doesn’t exist yet
+                    key={faq.id || index}
                     className={`faq-item ${faq.expanded ? "expanded" : ""}`}
                   >
                     <div
                       className="faq-question"
                       onClick={() => toggleExpand(index)}
                     >
-                      <span className="question-text">{faq.question}</span>
+                      <span className="question-text" style={{ fontWeight: "bold" }}>
+                        {faq.question}
+                      </span>
                       <i className="fa-solid fa-chevron-down dropdown-icon"></i>
                     </div>
-                    <div className="faq-tags"> 
-                      <p>Tags: {faq.tags.join(", ")}</p>
-                    </div>
+                    
+                    {faq.tags && faq.tags.length > 0 && (
+                      <div style={{ 
+                        padding: "0 24px 12px 24px", 
+                        display: "flex", 
+                        flexWrap: "wrap", 
+                        gap: "8px" 
+                      }}>
+                        {faq.tags.map((tag, tIndex) => (
+                          <span key={tIndex} style={chipStyle}>
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+                    )}
+
                     <div className="faq-answer">
-                      <p>{faq.answer}</p>
+                      <p style={{ lineHeight: "1.7" }}>{faq.answer}</p>
                     </div>
                   </div>
                 ))
