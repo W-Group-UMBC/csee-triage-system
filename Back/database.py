@@ -46,3 +46,6 @@ def add_faq(question: str, answer: str, faculty: str, tags: list, index = None):
 
     db.collection('faq').add(data)
     print("FAQ added with auto ID.")
+
+def delete_faq(doc_id: str):
+    faqs_ref.document(doc_id).delete()

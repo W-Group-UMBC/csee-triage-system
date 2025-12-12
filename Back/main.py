@@ -35,11 +35,21 @@ app.add_middleware(
 )
 
 allowed_users = {}
-# Get allowed users from Firestore
+# get allowed users from Firestore
 def get_allowed_users():
-    users_ref = db.collection('faculty')
+    users_ref = db.collection('admins')
     docs = users_ref.stream()
-    return set(doc.id for doc in docs)
+    allowed = set()
+    for doc in docs:
+        # add the document ID (in case you manually set ID = email)
+        allowed.add(doc.id)
+        
+        # add the email field from the data (in case you use auto-IDs)
+        data = doc.to_dict()
+        if "email" in data:
+            allowed.add(data["email"])
+            
+    return allowed
 
 # Verify token dependency
 async def verify_token(request: Request):
@@ -89,6 +99,11 @@ async def api_add_faq(faq: FAQCreate, user=Depends(verify_token)):
     add_faq(faq.question, faq.answer, faq.faculty, faq.tags, faq.index)
     return {"message": "FAQ added successfully"}
 
+@app.delete("/faq/{doc_id}")
+async def api_delete_faq(doc_id: str, user=Depends(verify_token)):
+    delete_faq(doc_id)
+    return {"message": "FAQ deleted successfully"}
+
 @app.get("/public/faq/{doc_id}")
 async def api_get_faq(doc_id: str):
     faq = get_faq(doc_id)
@@ -103,6 +118,8 @@ async def api_get_all_faqs():
 @app.get("/public/faqs/tag/{tag}")
 async def api_get_faqs_by_tag(tag: str):
     return get_faqs_by_tag(tag)
+
+
 
 if __name__ == "__main__":
     uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)

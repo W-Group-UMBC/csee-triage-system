@@ -30,4 +30,44 @@ export const api = {
     }
     return response.json();
   },
+
+  addFaq: async (faqData) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not logged in");
+    const token = await user.getIdToken();
+
+    const response = await fetch("http://127.0.0.1:8000/faq/add", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(faqData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to add FAQ");
+    }
+    return response.json();
+  },
+
+  deleteFaq: async (faqId) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not logged in");
+    const token = await user.getIdToken();
+
+    const response = await fetch(`http://127.0.0.1:8000/faq/${faqId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to delete FAQ");
+    }
+    return response.json();
+  }
 };
