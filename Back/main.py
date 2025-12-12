@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import List
+from typing import List, Optional
 
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.responses import RedirectResponse
@@ -41,14 +41,10 @@ def get_allowed_users():
     docs = users_ref.stream()
     allowed = set()
     for doc in docs:
-        # add the document ID (in case you manually set ID = email)
-        allowed.add(doc.id)
-        
-        # add the email field from the data (in case you use auto-IDs)
+        allowed.add(doc.id) # Add document ID
         data = doc.to_dict()
         if "email" in data:
-            allowed.add(data["email"])
-            
+            allowed.add(data["email"]) # Add email field if present
     return allowed
 
 # Verify token dependency
@@ -64,41 +60,39 @@ async def verify_token(request: Request):
         email = decoded_token.get("email")
 
         allowed_users = get_allowed_users()
-
+        
+        # Check if email is in the allowed list
         if email not in allowed_users:
             raise HTTPException(status_code=403, detail="Access denied: not an approved user.")
         return decoded_token
     except Exception as e:
         raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
-    
-# Protected route example
-@app.get("/secure-data")
-async def secure_data(user=Depends(verify_token)):
-    email = user.get("email")
-    # Return JSON instead of redirect
-    return {"authorized": True, "email": email}
 
-
-@app.get("/check-access")
-async def check_access(user=Depends(verify_token)):
-    # user is decoded token from Firebase
-    return {"authorized": True, "email": user["email"]}
-
-
-# --- Request models ---
+# Request models
 class FAQCreate(BaseModel):
     question: str
     answer: str
     faculty: str
     tags: List[str]
-    index: int | None = None
+    index: Optional[int] = None
 
 # --- Routes ---
+
+@app.get("/secure-data")
+async def secure_data(user=Depends(verify_token)):
+    return {"authorized": True, "email": user.get("email")}
+
+@app.get("/check-access")
+async def check_access(user=Depends(verify_token)):
+    return {"authorized": True, "email": user["email"]}
+
+# Add FAQ
 @app.post("/faq/add")
 async def api_add_faq(faq: FAQCreate, user=Depends(verify_token)):
     add_faq(faq.question, faq.answer, faq.faculty, faq.tags, faq.index)
     return {"message": "FAQ added successfully"}
 
+# Delete FAQ (NEW)
 @app.delete("/faq/{doc_id}")
 async def api_delete_faq(doc_id: str, user=Depends(verify_token)):
     delete_faq(doc_id)
@@ -118,7 +112,6 @@ async def api_get_all_faqs():
 @app.get("/public/faqs/tag/{tag}")
 async def api_get_faqs_by_tag(tag: str):
     return get_faqs_by_tag(tag)
-
 
 
 if __name__ == "__main__":

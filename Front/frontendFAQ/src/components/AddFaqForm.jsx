@@ -1,3 +1,6 @@
+import { useState } from "react";
+
+// Updated props: 'onSubmit' matches what Faculty.jsx passes down
 export default function AddFaqForm({ onSubmit, onCancel }) {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
@@ -7,19 +10,19 @@ export default function AddFaqForm({ onSubmit, onCancel }) {
     e.preventDefault();
     if (!question || !answer) return alert("Please fill all fields");
 
-    // Construct the data object
     const newFaq = {
       question,
       answer,
-      tags: tags.split(",").map((t) => t.trim().toLowerCase()),
-      faculty: "CSEE Department", // Hardcoded or dynamic based on user
+      // Convert "tag1, tag2" string into ["tag1", "tag2"] array
+      tags: tags.split(",").map((t) => t.trim().toLowerCase()).filter(t => t !== ""),
+      faculty: "CSEE Department", 
       index: null
     };
 
-    // Pass data to parent instead of writing to DB directly
+    // Call the parent handler (which calls the API)
     await onSubmit(newFaq);
 
-    // Reset form
+    // Reset fields
     setQuestion("");
     setAnswer("");
     setTags("");
@@ -30,26 +33,34 @@ export default function AddFaqForm({ onSubmit, onCancel }) {
       <h3>Add a New Question</h3>
 
       <form onSubmit={handleSubmit}>
-        <input
-          type="text"
-          placeholder="Type question"
-          value={question}
-          onChange={(e) => setQuestion(e.target.value)}
-          required
-        />
-        <textarea
-          placeholder="Type answer"
-          rows="4"
-          value={answer}
-          onChange={(e) => setAnswer(e.target.value)}
-          required
-        />
-        <input
-          type="text"
-          placeholder="Tags (comma separated)"
-          value={tags}
-          onChange={(e) => setTags(e.target.value)}
-        />
+        <div className="form-group">
+            <input
+            type="text"
+            placeholder="Type question"
+            value={question}
+            onChange={(e) => setQuestion(e.target.value)}
+            required
+            />
+        </div>
+        
+        <div className="form-group">
+            <textarea
+            placeholder="Type answer"
+            rows="4"
+            value={answer}
+            onChange={(e) => setAnswer(e.target.value)}
+            required
+            />
+        </div>
+
+        <div className="form-group">
+            <input
+            type="text"
+            placeholder="Tags (comma separated)"
+            value={tags}
+            onChange={(e) => setTags(e.target.value)}
+            />
+        </div>
 
         <div className="form-buttons">
           <button className="btn add" type="submit">Add</button>
