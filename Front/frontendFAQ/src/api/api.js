@@ -1,17 +1,17 @@
-// src/api/api.js
+import { auth } from "../firebase/firebase";
 
-import { auth } from "../firebase/firebase"; // adjust path as needed
+const API_URL = "http://127.0.0.1:8000"; // Ensure this matches your backend port
 
 export const api = {
- checkAccess: async () => {
+  checkAccess: async () => {
     const user = auth.currentUser;
     if (!user) throw new Error("Not logged in");
 
-    const token = await user.getIdToken(true); // refresh token to ensure it's valid
+    const token = await user.getIdToken(true);
 
-    const res = await fetch("http://127.0.0.1:8000/check-access", {
+    const res = await fetch(`${API_URL}/check-access`, {
       headers: {
-        Authorization: `Bearer ${token}`, // <-- send token here
+        Authorization: `Bearer ${token}`,
       },
     });
 
@@ -24,10 +24,50 @@ export const api = {
   },
   
   getAllFaqs: async () => {
-    const response = await fetch("http://127.0.0.1:8000/public/faqs");
+    const response = await fetch(`${API_URL}/public/faqs`);
     if (!response.ok) {
       throw new Error(`Failed to fetch FAQs: ${response.statusText}`);
     }
     return response.json();
   },
+
+  addFaq: async (faqData) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not logged in");
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${API_URL}/faq/add`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+      body: JSON.stringify(faqData),
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to add FAQ");
+    }
+    return response.json();
+  },
+
+  deleteFaq: async (faqId) => {
+    const user = auth.currentUser;
+    if (!user) throw new Error("Not logged in");
+    const token = await user.getIdToken();
+
+    const response = await fetch(`${API_URL}/faq/${faqId}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.detail || "Failed to delete FAQ");
+    }
+    return response.json();
+  }
 };
