@@ -1,7 +1,9 @@
 import firebase_admin
+import logging
 from firebase_admin import credentials
 from firebase_admin import firestore
 
+logger = logging.getLogger(__name__)
 # Initialize only if not already initialized
 if not firebase_admin._apps:
     cred = credentials.Certificate("service_key.json")
@@ -48,8 +50,18 @@ def add_faq(question: str, answer: str, faculty: str, tags: list, index = None):
         data['index'] = index
 
     db.collection('faq').add(data)
-    print("FAQ added with auto ID.")
+    logging.info("FAQ added with auto ID.")
+
+def update_faq(doc_id: str, question: str, answer: str, faculty: str, tags: list):
+    data = {
+        'question': question,
+        'answer': answer,
+        'faculty': faculty,
+        'tags': tags
+    }
+    faqs_ref.document(doc_id).update(data)
+    logger.info(f"FAQ {doc_id} updated.")
 
 def delete_faq(doc_id: str):
     faqs_ref.document(doc_id).delete()
-    print(f"FAQ {doc_id} deleted.")
+    logger.info(f"FAQ {doc_id} deleted.")

@@ -101,7 +101,16 @@ async def api_add_faq(faq: FAQCreate, user=Depends(verify_token)):
     add_faq(faq.question, faq.answer, faq.faculty, faq.tags, faq.index)
     return {"message": "FAQ added successfully"}
 
-# Delete FAQ (NEW)
+# Edit FAQ
+@app.put("/faq/{doc_id}")
+async def api_update_faq(doc_id: str, faq: FAQCreate, user=Depends(verify_token)):
+    try:
+        update_faq(doc_id, faq.question, faq.answer, faq.faculty, faq.tags)
+        return {"message": "FAQ updated successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+# Delete FAQ
 @app.delete("/faq/{doc_id}")
 async def api_delete_faq(doc_id: str, user=Depends(verify_token)):
     delete_faq(doc_id)

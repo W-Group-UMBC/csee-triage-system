@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { api } from "../api/api";
 import { auth } from "../firebase/firebase";
+import { Link } from "react-router-dom";
 import AddFaqForm from "../components/AddFaqForm";
+import AdminFaqItem from "../components/AdminFaqItem";
 import SearchBar from "../components/SearchBar";
 import "../styles/faculty.css";
 
@@ -90,6 +92,20 @@ export default function Faculty() {
     }
   };
 
+  const handleUpdateFaq = async (faqId, updatedData) => {
+    try {
+      await api.updateFaq(faqId, updatedData);
+
+      // Update local state instantly so we don't need to refresh
+      setFaqs((prev) => 
+        prev.map((f) => (f.id === faqId ? { ...f, ...updatedData } : f))
+      );
+    } catch (err) {
+      console.error("Error updating FAQ:", err);
+      alert("Failed to update FAQ.");
+    }
+  };
+
   return (
     <div>
       {/* Header */}
@@ -101,7 +117,7 @@ export default function Faculty() {
 
       {/* Breadcrumb */}
       <div className="breadcrumb">
-        <a href="#">COIT</a> / <a href="#">CSEE</a> / <a href="#">CSEE FAQ</a> / Admin Tools
+        <a href="#">COIT</a> / <a href="#">CSEE</a> / <Link to="/">CSEE FAQ</Link> / Admin Tools
       </div>
 
       {/* Main Layout */}
@@ -134,39 +150,12 @@ export default function Faculty() {
                 <p>No FAQs found.</p>
               ) : (
                 filteredFaqs.map((faq) => (
-                  <div
-                    key={faq.id}
-                    className="faq-item"
-                    style={{ cursor: "default" }}
-                  >
-                    <div className="item-actions">
-                      <button
-                        className="action-btn delete-btn"
-                        onClick={() => handleDeleteFaq(faq.id)}
-                      >
-                        <i className="fa-solid fa-trash" style={{ fontSize: "20px" }}></i>
-                      </button>
-                    </div>
-
-                    {/* Question Header (No longer clickable) */}
-                    <div className="faq-question" style={{ cursor: "text" }}>
-                      <span className="question-text" style={{ fontWeight: "bold" }}>
-                        {faq.question}
-                      </span>
-                    </div>
-
-                    {/* Tags (Always visible) */}
-                    {faq.tags && faq.tags.length > 0 && (
-                      <div className="faq-tags" style={{ maxHeight: "none", padding: "0 24px 10px 24px" }}>
-                        <p>Tags: {faq.tags.join(", ")}</p>
-                      </div>
-                    )}
-
-                    {/* Answer (Always visible) */}
-                    <div className="faq-answer" style={{ maxHeight: "none", padding: "0 24px 24px 24px" }}>
-                      <p>{faq.answer}</p>
-                    </div>
-                  </div>
+                  <AdminFaqItem 
+                    key={faq.id} 
+                    faq={faq} 
+                    onDelete={handleDeleteFaq}
+                    onUpdate={handleUpdateFaq}
+                  />
                 ))
               )}
             </div>

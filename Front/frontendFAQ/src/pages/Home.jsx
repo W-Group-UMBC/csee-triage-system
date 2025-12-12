@@ -15,8 +15,10 @@ export default function Home() {
       try {
         setLoading(true);
         const data = await api.getAllFaqs();
-        setFaqs(data);
-        setFilteredFaqs(data);
+        // Initialize with expanded: false
+        const initializedData = data.map(f => ({ ...f, expanded: false }));
+        setFaqs(initializedData);
+        setFilteredFaqs(initializedData);
       } catch (err) {
         console.error("Error loading FAQs:", err);
       } finally {
@@ -44,7 +46,6 @@ export default function Home() {
     setFilteredFaqs(results);
   };
 
-
   // Toggle FAQ expand/collapse
   const toggleExpand = (index) => {
     setFilteredFaqs((prev) =>
@@ -54,11 +55,22 @@ export default function Home() {
     );
   };
 
+  // --- Chip Styling (Consistent with Admin Dashboard) ---
+  const chipStyle = {
+    backgroundColor: "#e0e0e0",
+    padding: "4px 10px",
+    borderRadius: "16px",
+    fontSize: "13px",
+    color: "#333",
+    display: "inline-flex",
+    alignItems: "center",
+    fontWeight: "500"
+  };
 
   return (
     <div>
       {/* ===== Header ===== */}
-      <div className="header" >
+      <div className="header">
         <div className="logo">
           <img src="/images/UMBC-primary-logo-CMYK-on-black.png" alt="UMBC Logo" />
         </div>
@@ -120,7 +132,7 @@ export default function Home() {
               ) : (
                 filteredFaqs.map((faq, index) => (
                   <div
-                    key={index} // use index if faq.id doesn’t exist yet
+                    key={faq.id || index}
                     className={`faq-item ${faq.expanded ? "expanded" : ""}`}
                   >
                     <div
@@ -133,10 +145,18 @@ export default function Home() {
                       <i className="fa-solid fa-chevron-down dropdown-icon"></i>
                     </div>
                     
-                    {/* Tags moved here - outside the dropdown, always visible */}
                     {faq.tags && faq.tags.length > 0 && (
-                      <div style={{ padding: "0 24px 10px 24px", color: "#666", fontSize: "0.95em" }}> 
-                        Tags: {faq.tags.join(", ")}
+                      <div style={{ 
+                        padding: "0 24px 12px 24px", 
+                        display: "flex", 
+                        flexWrap: "wrap", 
+                        gap: "8px" 
+                      }}>
+                        {faq.tags.map((tag, tIndex) => (
+                          <span key={tIndex} style={chipStyle}>
+                            {tag}
+                          </span>
+                        ))}
                       </div>
                     )}
 
