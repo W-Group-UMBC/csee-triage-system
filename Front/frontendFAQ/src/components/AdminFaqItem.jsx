@@ -140,7 +140,7 @@ export default function AdminFaqItem({ faq, onDelete, onUpdate }) {
             className="faq-answer" 
             style={{ maxHeight: "none", overflow: "visible", padding: "0 24px 24px 24px" }}
           >
-            <p style={{ margin: 0, lineHeight: "1.5" }}>{faq.answer}</p>
+            <p style={{ margin: 0, lineHeight: "1.7" }}>{faq.answer}</p>
           </div>
         </>
       )}

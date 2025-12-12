@@ -70,7 +70,7 @@ export default function Home() {
   return (
     <div>
       {/* ===== Header ===== */}
-      <div className="header">
+      <div className="header" style={{ justifyContent: "space-between" }}>
         <div className="logo">
           <img src="/images/UMBC-primary-logo-CMYK-on-black.png" alt="UMBC Logo" />
         </div>
@@ -161,7 +161,7 @@ export default function Home() {
                     )}
 
                     <div className="faq-answer">
-                      <p>{faq.answer}</p>
+                      <p style={{ lineHeight: "1.7" }}>{faq.answer}</p>
                     </div>
                   </div>
                 ))
